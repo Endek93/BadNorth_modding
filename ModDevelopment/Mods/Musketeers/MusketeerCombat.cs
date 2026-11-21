@@ -129,7 +129,7 @@ namespace BadNorth.Musketeers
                 if (Time.time < ___coolDownTime) return false;
 
                 var enemy = ___target.agent;
-                if (!MusketeerTargeting.IsAvailable(enemy)) return false;
+                if (!MusketeerTargeting.IsAvailable(enemy) || !MusketeerTargeting.HasAttackSlot(__instance, enemy)) return false;
 
                 var soldier = __instance.agent;
                 Vector3 origin = ___shootable ? ___shootable.transform.position : __instance.ShootPos;
@@ -194,13 +194,25 @@ namespace BadNorth.Musketeers
         private static class AimAlongShotPath
         {
             private static bool Prefix(Archery __instance, TrajectoryUtility trajectory, Vector3 targetPos,
-                Vector3 targetVelocity, TrajectoryUtility ___trajectoryCalculator, LineOfSight.Sight ___target,
-                ref bool __result)
+                Vector3 targetVelocity, TrajectoryUtility ___trajectoryCalculator, LineOfSight ___lineOfSight,
+                ref LineOfSight.Sight ___target, ref bool __result)
             {
                 if (!MusketeersPlugin.IsMusketeer(__instance.agent) || trajectory != ___trajectoryCalculator)
                     return true;
 
                 var enemy = ___target.agent;
+                if (enemy && ___lineOfSight && __instance.shooting?.active == true)
+                {
+                    ___target = MusketeerTargeting.SelectTarget(__instance, ___lineOfSight.enemies,
+                        ExtendRange(trajectory.maxValidRadius), ___target);
+                    enemy = ___target.agent;
+                    if (!enemy)
+                    {
+                        __result = false;
+                        return false;
+                    }
+                    targetVelocity = enemy.navPos.velocity;
+                }
                 __instance.aimDirTarget = AimVelocity(__instance.ShootPos, enemy ? AimPoint(enemy) : targetPos,
                     targetVelocity);
                 __result = __instance.aimDirTarget != Vector3.zero;

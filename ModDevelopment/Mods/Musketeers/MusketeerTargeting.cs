@@ -9,8 +9,10 @@ namespace BadNorth.Musketeers
     [HarmonyPatch(typeof(LineOfSight), nameof(LineOfSight.target), MethodType.Getter)]
     internal static class MusketeerTargeting
     {
+        private const int MaxAttackers = 2;
         private static readonly AccessTools.FieldRef<Archery, LineOfSight.Sight> AimedTarget =
             AccessTools.FieldRefAccess<Archery, LineOfSight.Sight>("target");
+        private static readonly HashSet<Archery> ActiveAims = new HashSet<Archery>();
         private static readonly Dictionary<Agent, int> ShotsInFlight = new Dictionary<Agent, int>();
 
         private static void Postfix(LineOfSight __instance, float ___radius, ref LineOfSight.Sight __result)
@@ -23,12 +25,21 @@ namespace BadNorth.Musketeers
             __result = SelectTarget(shooter, __instance.enemies, ___radius);
         }
 
-        private static LineOfSight.Sight SelectTarget(Archery shooter, List<LineOfSight.Sight> visible, float radius)
+        internal static LineOfSight.Sight SelectTarget(Archery shooter, List<LineOfSight.Sight> visible, float radius,
+            LineOfSight.Sight current = default)
         {
+            int smallestCount = MaxAttackers;
             LineOfSight.Sight best = default;
-            int smallestCount = int.MaxValue;
-            var coordinator = shooter.archerySquad;
-            var teammates = coordinator ? coordinator.archers : null;
+            if (current.agent)
+            {
+                int count = CountOtherAttacks(shooter, current.agent);
+                if (count == 0) return current;
+                if (count < smallestCount)
+                {
+                    best = current;
+                    smallestCount = count;
+                }
+            }
             Vector3 origin = shooter.ShootPos;
 
             foreach (var candidate in visible)
@@ -36,9 +47,7 @@ namespace BadNorth.Musketeers
                 var enemy = candidate.agent;
                 if (!IsAvailable(enemy)) continue;
 
-                int count = InFlightCount(enemy);
-                if (count >= smallestCount) continue;
-                if (teammates != null) count += CountTeammatesAiming(teammates, shooter, enemy);
+                int count = CountOtherAttacks(shooter, enemy);
                 if (count >= smallestCount || !MusketeerCombat.TryGetClearAim(origin, candidate, radius, out _)) continue;
                 if (count == 0) return candidate;
 
@@ -52,6 +61,8 @@ namespace BadNorth.Musketeers
         internal static bool IsAvailable(Agent enemy) =>
             enemy && enemy.gameObject.activeInHierarchy && enemy.aliveAndGrounded != null && enemy.aliveAndGrounded.active;
 
+        internal static bool HasAttackSlot(Archery shooter, Agent enemy) => CountOtherAttacks(shooter, enemy) < MaxAttackers;
+
         internal static int InFlightCount(Agent enemy) =>
             ShotsInFlight.TryGetValue(enemy, out int count) ? count : 0;
 
@@ -64,17 +75,44 @@ namespace BadNorth.Musketeers
                 ShotsInFlight.Remove(enemy);
         }
 
-        private static int CountTeammatesAiming(List<Archery> teammates, Archery shooter, Agent enemy)
+        private static int CountOtherAttacks(Archery shooter, Agent enemy)
         {
-            int count = 0;
-            foreach (var teammate in teammates)
+            int count = InFlightCount(enemy);
+            if (count >= MaxAttackers) return count;
+
+            foreach (var other in ActiveAims)
             {
-                // The native shooting state releases the target when the aim ends, even if the shot was cancelled.
-                if (teammate && teammate != shooter && teammate.isActiveAndEnabled
-                    && teammate.shooting != null && teammate.shooting.active && AimedTarget(teammate).agent == enemy)
-                    count++;
+                if (!other || other == shooter || !other.isActiveAndEnabled || AimedTarget(other).agent != enemy
+                    || !IsAvailable(other.agent)) continue;
+                count++;
+                if (count == MaxAttackers) break;
             }
             return count;
+        }
+
+        [HarmonyPatch(typeof(Archery), nameof(Archery.MaybeStartShooting))]
+        private static class TrackCommittedAim
+        {
+            private static void Postfix(Archery __instance, bool __result)
+            {
+                if (!__result || !MusketeersPlugin.IsMusketeer(__instance.agent)) return;
+                var shooting = __instance.shooting;
+                if (!shooting.active || !ActiveAims.Add(__instance)) return;
+
+                shooting.OnDeactivate += ReleaseAim;
+
+                void ReleaseAim()
+                {
+                    ActiveAims.Remove(__instance);
+                    shooting.OnDeactivate -= ReleaseAim;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Archery), "OnDestroy")]
+        private static class ForgetDestroyedShooter
+        {
+            private static void Prefix(Archery __instance) => ActiveAims.Remove(__instance);
         }
 
         [HarmonyPatch(typeof(LineOfSight), nameof(LineOfSight.SetupLineOfSight))]
