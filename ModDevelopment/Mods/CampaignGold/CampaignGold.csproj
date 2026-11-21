@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\GameReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>BadNorth.CampaignGold</AssemblyName>
+  </PropertyGroup>
+</Project>

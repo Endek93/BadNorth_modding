@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\Build\GameReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>BadNorth.ModMenu</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bootstrap\ModMenu.Bootstrap.csproj"
+                      SpecificVersion="true" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <SpecificVersion>true</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+Bad North Musketeers audio credits
+
+MusketCharleville.wav
+Adapted from "musket_fire_9.wav" by J8054.
+Source https://freesound.org/people/J8054/sounds/648755/
+License Creative Commons Attribution 4.0 International https://creativecommons.org/licenses/by/4.0/
+
+The adaptation was trimmed, level-adjusted, and converted to mono 24 kHz PCM.
+The mod mix adds a short low-mid impact and extends the natural tail with filtered reflections.

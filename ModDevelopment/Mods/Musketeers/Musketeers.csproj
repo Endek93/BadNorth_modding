@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\GameReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>BadNorth.Musketeers</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\MusketCharleville.wav" LogicalName="BadNorth.Musketeers.MusketCharleville.wav" />
+    <EmbeddedResource Include="Assets\PartTex_Musketeer.png" LogicalName="BadNorth.Musketeers.PartTex_Musketeer.png" />
+    <EmbeddedResource Include="Assets\MusketeerMusket.bytes" LogicalName="BadNorth.Musketeers.MusketeerMusket.bytes" />
+    <EmbeddedResource Include="Assets\MusketeerUpgradeIcon.png" LogicalName="BadNorth.Musketeers.MusketeerUpgradeIcon.png" />
+    <EmbeddedResource Include="Assets\Musketeers-Audio-Credits.txt" LogicalName="BadNorth.Musketeers.AudioCredits.txt" />
+    <None Update="Assets\Musketeers-Audio-Credits.txt" CopyToOutputDirectory="PreserveNewest" TargetPath="Musketeers-Audio-Credits.txt" />
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(GameDirectory)\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

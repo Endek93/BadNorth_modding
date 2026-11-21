@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\GameReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>BadNorth.IslandTravel</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony" HintPath="$(GameDirectory)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="UnityEngine.AnimationModule" HintPath="$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.AnimationModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GameDirectory)\BadNorth_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <SpecificVersion>true</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
