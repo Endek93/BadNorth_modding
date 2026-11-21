@@ -11,7 +11,6 @@ Personal mods for Bad North: Jotunn Edition.
 | Mod | 功能 |
 | --- | --- |
 | Campaign Gold | 在战役地图上用 F6 加金币、F7 设置金币余额。 |
-| FirstMod | 最小插件示例，加载时写入一条日志。 |
 | Island Travel | 解除战役岛屿的出行限制，可配置是否冻结维京推进线。 |
 | Mod Menu | 在游戏中管理本地插件。启停变更会在重启时应用。 |
 | Musketeers | 添加火枪手升级分支和相应的美术、枪声及战斗效果。 |
@@ -27,7 +26,7 @@ $gameDirectory = "D:\SteamLibrary\steamapps\common\BadNorth"
 dotnet build .\ModDevelopment\Mods\Musketeers\Musketeers.csproj -c Release "-p:GameDirectory=$gameDirectory"
 ```
 
-项目目标框架为 .NET Framework 3.5。Mod Menu 通过主项目引用启动补丁项目。编译输出位于各项目的 `bin/Release/net35`。FirstMod 的本地构建脚本使用 `ModDevelopment/Tools/ReferencePackages` 作为离线包源，普通克隆可用上面的通用命令构建。
+项目目标框架为 .NET Framework 3.5。Mod Menu 通过主项目引用启动补丁项目。编译输出位于各项目的 `bin/Release/net35`。
 
 ## 音效署名
 
