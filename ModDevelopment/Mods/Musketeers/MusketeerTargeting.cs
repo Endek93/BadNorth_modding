@@ -12,6 +12,8 @@ namespace BadNorth.Musketeers
         private const int MaxAttackers = 2;
         private static readonly AccessTools.FieldRef<Archery, LineOfSight.Sight> AimedTarget =
             AccessTools.FieldRefAccess<Archery, LineOfSight.Sight>("target");
+        private static readonly AccessTools.FieldRef<LineOfSight, float> ScoutRadius =
+            AccessTools.FieldRefAccess<LineOfSight, float>("radius");
         private static readonly HashSet<Archery> ActiveAims = new HashSet<Archery>();
         private static readonly Dictionary<Agent, int> ShotsInFlight = new Dictionary<Agent, int>();
 
@@ -60,6 +62,21 @@ namespace BadNorth.Musketeers
 
         internal static bool IsAvailable(Agent enemy) =>
             enemy && enemy.gameObject.activeInHierarchy && enemy.aliveAndGrounded != null && enemy.aliveAndGrounded.active;
+
+        internal static bool HasSpottedEnemyInRange(LineOfSight scout, Vector3 origin)
+        {
+            if (!scout || scout.enemies == null || scout.enemies.Count == 0) return false;
+
+            // Use the scanner's visible candidates before applying the attack-slot limit.
+            float radius = ScoutRadius(scout);
+            foreach (var candidate in scout.enemies)
+            {
+                var enemy = candidate.agent;
+                if (IsAvailable(enemy) && (MusketeerCombat.AimPoint(enemy) - origin).sqrMagnitude <= radius * radius)
+                    return true;
+            }
+            return false;
+        }
 
         internal static bool HasAttackSlot(Archery shooter, Agent enemy) => CountOtherAttacks(shooter, enemy) < MaxAttackers;
 

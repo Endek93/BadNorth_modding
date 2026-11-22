@@ -17,7 +17,7 @@ from mathutils import Vector
 
 ART = Path(__file__).resolve().parent
 sys.path.insert(0, str(ART))
-from MusketProp import build_musket
+from MusketProp import MUZZLE_POSITION, build_musket
 
 ASSETS = ART.parent / "Assets"
 SIZE = 112
@@ -174,7 +174,7 @@ for i, point in enumerate(corners):
 
 build_musket(gun)
 muzzle = empty("Visual muzzle", gun)
-muzzle.location = (0, 1.60, .080)
+muzzle.location = MUZZLE_POSITION
 
 arms = []
 legs = []

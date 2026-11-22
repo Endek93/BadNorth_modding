@@ -135,18 +135,16 @@ namespace BadNorth.Musketeers
                 Vector3 origin = ___shootable ? ___shootable.transform.position : __instance.ShootPos;
                 float range = ExtendRange(___trajectoryCalculator.maxValidRadius);
                 var appearance = soldier.GetComponent<MusketeerAppearance>();
-                Vector3 aimed = Vector3.zero;
                 if (appearance && MusketeerAppearance.TryGetMuzzle(soldier, out var muzzle))
                 {
                     // Keep the collision start behind nearby bodies and cover when the barrel extends past them.
                     Vector3 toTarget = AimPoint(enemy) - origin;
                     int solid = (int)CoverMask(___target.mask0, ___target.mask1) | (int)LayerMaster.viBodies.mask;
                     if (Vector3.Dot(muzzle - origin, toTarget.normalized) + 0.16f < toTarget.magnitude
-                        && !Physics.Linecast(origin, muzzle, solid)
-                        && TryGetClearAim(muzzle, ___target, range, out aimed))
+                        && !Physics.Linecast(origin, muzzle, solid))
                         origin = muzzle;
                 }
-                if (aimed == Vector3.zero && !TryGetClearAim(origin, ___target, range, out aimed)) return false;
+                if (!TryGetClearAim(origin, ___target, range, out var aimed)) return false;
 
                 if (appearance) appearance.PrepareOrigin(origin);
                 shootDir = aimed;

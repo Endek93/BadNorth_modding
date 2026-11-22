@@ -9,7 +9,7 @@
 | [Campaign Gold](#campaign-gold) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Campaign_Gold-1.0.0.zip) |
 | [Island Travel](#island-travel) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Island_Travel-1.1.0.zip) |
 | [Mod Menu](#mod-menu) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Mod_Menu-1.1.1.zip) |
-| [Musketeers](#musketeers) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Musketeers-0.7.10.zip) |
+| [Musketeers](#musketeers) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Musketeers-0.7.15.zip) |
 | [Save Compatibility](#save-compatibility) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Save_Compatibility-1.0.0.zip) |
 | [Unlocks](#unlocks) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Unlocks-1.0.0.zip) |
 
@@ -53,6 +53,7 @@ Install BepInEx 5 (x86), unzip the mod, then merge its `plugins` folder and any 
 - 火枪手会跨小队分散火力。每个敌人最多同时被两名火枪手攻击，正在瞄准的射手和已发出的弹丸都占用名额。
 - 单发伤害和击退更强，开火后每名火枪手有 **5 秒**装填时间。打到盾牌时伤害会衰减。
 - 配有蓝色军服、火枪模型、装填动作、枪口烟雾和独立枪声。
+- 待机时把火枪扛在左肩，枪口略向后倾，护圈朝向身体。新版模型补了黄铜枪托底板和镂空护圈，枪长约为士兵可见身高的 82%。
 
 ### Save Compatibility
 

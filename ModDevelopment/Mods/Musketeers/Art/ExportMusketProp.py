@@ -16,12 +16,13 @@ muzzle = bpy.data.objects["Visual muzzle"]
 rebuild = "--rebuild-prop" in sys.argv
 if rebuild:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from MusketProp import build_musket
+    from MusketProp import MUZZLE_POSITION, build_musket
 
     for child in list(gun.children):
         if child.type == "MESH":
             bpy.data.objects.remove(child, do_unlink=True)
     build_musket(gun)
+    muzzle.location = MUZZLE_POSITION
     bpy.context.view_layer.update()
 
 relative = gun.matrix_world.inverted()

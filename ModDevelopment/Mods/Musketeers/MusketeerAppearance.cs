@@ -5,6 +5,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using Voxels.TowerDefense;
+using Voxels.TowerDefense.Ballistics;
 using Voxels.TowerDefense.SpriteMagic;
 
 namespace BadNorth.Musketeers
@@ -15,6 +16,14 @@ namespace BadNorth.Musketeers
         private const int PartsWidth = 64;
         private const int PartsHeight = 126;
         private const int PartsOffsetY = 128;
+        private const float RaiseSeconds = 0.32f;
+        private const float LowerSeconds = 0.18f;
+        private const float CarryLift = 0.065f;
+        private const float CarrySide = -0.13f;
+        private const float CarryForward = 0.055f;
+        // In the weapon mesh, +Z points toward the muzzle and -Y toward the trigger guard.
+        private static readonly Quaternion ShoulderRotation = Quaternion.LookRotation(
+            new Vector3(0.035f, 1f, -0.21f), Vector3.left);
 
         private static Sprite uniform;
         private static Mesh musketMesh;
@@ -32,12 +41,15 @@ namespace BadNorth.Musketeers
         private MeshRenderer oldBowRenderer;
         private Mesh oldBowMesh;
         private bool oldBowVisible;
+        private Archery archer;
+        private LineOfSight scout;
         private Transform bowPose;
         private Vector3 bowGrip;
         private Transform weaponMount;
         private MeshRenderer musketRenderer;
         private MusketeerReloadPose reloadPose;
         private MeshRenderer fieldKitRenderer;
+        private float carry;
         private Vector3 nextOrigin;
         private bool originPrepared;
 
@@ -200,6 +212,8 @@ namespace BadNorth.Musketeers
             appearance.oldBowRenderer = renderer;
             appearance.oldBowMesh = geometry.sharedMesh;
             appearance.oldBowVisible = renderer.enabled;
+            appearance.archer = archer;
+            appearance.scout = archer.GetComponent<LineOfSight>();
             appearance.bowPose = bowPose;
             appearance.bowGrip = bow.localPosition;
 
@@ -256,13 +270,34 @@ namespace BadNorth.Musketeers
             }
         }
 
-        private void LateUpdate() => SyncWeaponMount();
+        private void LateUpdate()
+        {
+            if (!archer || !bowPose || !weaponMount) return;
 
-        private bool SyncWeaponMount()
+            bool raise = MusketeerTargeting.IsAvailable(archer.agent)
+                && archer.aiming?.active != true && archer.shooting?.active != true
+                && !(reloadPose && reloadPose.isActiveAndEnabled)
+                && !MusketeerTargeting.HasSpottedEnemyInRange(scout, bowPose.parent.position);
+            float seconds = raise ? RaiseSeconds : LowerSeconds;
+            carry = Mathf.MoveTowards(carry, raise ? 1f : 0f, Time.deltaTime / seconds);
+            SyncWeaponMount(carry);
+        }
+
+        private bool SyncWeaponMount(float raised = 0f)
         {
             if (!bowPose || !weaponMount) return false;
 
-            weaponMount.SetPositionAndRotation(bowPose.TransformPoint(bowGrip), bowPose.rotation);
+            Vector3 position = bowPose.TransformPoint(bowGrip);
+            Quaternion rotation = bowPose.rotation;
+            if (raised > 0f)
+            {
+                float blend = Mathf.SmoothStep(0f, 1f, raised);
+                float gripHeight = transform.InverseTransformPoint(position).y;
+                var shoulderGrip = transform.TransformPoint(new Vector3(CarrySide, gripHeight + CarryLift, CarryForward));
+                position = Vector3.Lerp(position, shoulderGrip, blend);
+                rotation = Quaternion.Slerp(rotation, transform.rotation * ShoulderRotation, blend);
+            }
+            weaponMount.SetPositionAndRotation(position, rotation);
             bool visible = bowPose.gameObject.activeInHierarchy;
             if (weaponMount.gameObject.activeSelf != visible) weaponMount.gameObject.SetActive(visible);
             return true;
@@ -305,6 +340,8 @@ namespace BadNorth.Musketeers
             var appearance = soldier ? soldier.GetComponent<MusketeerAppearance>() : null;
             if (!appearance || !appearance.musketRenderer || !appearance.SyncWeaponMount()) return false;
 
+            // A firing event can arrive before the next LateUpdate finishes lowering the carry pose.
+            appearance.carry = 0f;
             muzzle = appearance.musketRenderer.transform.TransformPoint(localMuzzle);
             return true;
         }
