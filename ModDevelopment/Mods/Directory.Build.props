@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Endek</Authors>
+    <Description>Author: $(Authors)</Description>
+  </PropertyGroup>
+</Project>
