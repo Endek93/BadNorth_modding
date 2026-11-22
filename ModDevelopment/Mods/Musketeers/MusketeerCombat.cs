@@ -14,7 +14,7 @@ namespace BadNorth.Musketeers
         private const float FlightTime = 0.45f;
         private const float RangeMultiplier = 1.15f;
         private const float MaxRange = Speed * FlightTime;
-        private const float ShieldDamageMultiplier = 0.75f;
+        private const float ShieldDamageMultiplier = 0.85f;
         internal const float ReloadSeconds = 5f;
         private static readonly FieldInfo ArrowSettings = AccessTools.Field(typeof(Shootable), "projectileSettings");
 

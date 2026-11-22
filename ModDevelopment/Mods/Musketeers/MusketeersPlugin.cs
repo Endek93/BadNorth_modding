@@ -9,7 +9,7 @@ using Voxels.TowerDefense.UI.UpgradeScreen;
 
 namespace BadNorth.Musketeers
 {
-    [BepInPlugin(PluginId, "Bad North Musketeers", "0.7.16")]
+    [BepInPlugin(PluginId, "Bad North Musketeers", "0.7.17")]
     public sealed class MusketeersPlugin : BaseUnityPlugin
     {
         private const string PluginId = "local.badnorth.musketeers";
