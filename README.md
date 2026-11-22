@@ -9,7 +9,7 @@
 | [Campaign Gold](#campaign-gold) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Campaign_Gold-1.0.0.zip) |
 | [Island Travel](#island-travel) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Island_Travel-1.1.0.zip) |
 | [Mod Menu](#mod-menu) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Mod_Menu-1.1.1.zip) |
-| [Musketeers](#musketeers) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Musketeers-0.7.15.zip) |
+| [Musketeers](#musketeers) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Musketeers-0.7.16.zip) |
 | [Save Compatibility](#save-compatibility) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Save_Compatibility-1.0.0.zip) |
 | [Unlocks](#unlocks) | [下载 ZIP](https://raw.githubusercontent.com/Endek93/BadNorth_modding/main/downloads/Unlocks-1.0.0.zip) |
 

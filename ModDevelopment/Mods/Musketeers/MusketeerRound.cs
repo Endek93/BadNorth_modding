@@ -15,15 +15,16 @@ namespace BadNorth.Musketeers
         private Arrow arrow;
         private Agent reservedTarget;
         private float expiresAt;
-        private bool inFlight;
 
-        internal static MusketeerRound For(Arrow arrow)
+        internal bool HasPellet => pellet && pellet.enabled;
+
+        internal static MusketeerRound For(Shootable projectile)
         {
-            var round = arrow.GetComponent<MusketeerRound>();
-            return round ? round : arrow.gameObject.AddComponent<MusketeerRound>();
+            var round = projectile.GetComponent<MusketeerRound>();
+            return round ? round : projectile.gameObject.AddComponent<MusketeerRound>();
         }
 
-        internal void HideArrow()
+        internal void HideProjectile()
         {
             foreach (var renderer in GetComponentsInChildren<Renderer>(true))
             {
@@ -35,11 +36,18 @@ namespace BadNorth.Musketeers
 
         internal void BeginFlight(Arrow projectile, float lifetime)
         {
-            HideArrow();
+            ShowPellet(projectile.spriteRenderer);
+            arrow = projectile;
+            expiresAt = Time.time + lifetime;
+        }
+
+        internal void ShowPellet(SpriteRenderer originalRenderer)
+        {
+            HideProjectile();
             if (!pellet)
             {
                 var graphic = new GameObject("Musketeer pellet");
-                graphic.layer = projectile.spriteRenderer ? projectile.spriteRenderer.gameObject.layer : gameObject.layer;
+                graphic.layer = originalRenderer ? originalRenderer.gameObject.layer : gameObject.layer;
                 graphic.transform.SetParent(transform, false);
                 pellet = graphic.AddComponent<SpriteRenderer>();
                 if (!pelletSprite) pelletSprite = CreatePelletSprite();
@@ -48,9 +56,6 @@ namespace BadNorth.Musketeers
             }
 
             pellet.enabled = true;
-            arrow = projectile;
-            expiresAt = Time.time + lifetime;
-            inFlight = true;
         }
 
         internal void RestoreAppearance()
@@ -63,7 +68,7 @@ namespace BadNorth.Musketeers
 
         internal void ReserveTarget(Agent target)
         {
-            if (!inFlight || !target || ReferenceEquals(reservedTarget, target)) return;
+            if (!HasPellet || !target || ReferenceEquals(reservedTarget, target)) return;
 
             ReleaseTarget();
             reservedTarget = target;
@@ -80,26 +85,34 @@ namespace BadNorth.Musketeers
 
         private void LateUpdate()
         {
-            if (!inFlight) return;
+            if (!HasPellet) return;
             if (!viewCamera || !viewCamera.isActiveAndEnabled)
             {
                 var levelCamera = Singleton<LevelCamera>.instance;
                 viewCamera = levelCamera && levelCamera.cameraRef ? levelCamera.cameraRef : Camera.main;
             }
-            // The pooled arrow rotates with velocity. The pellet's round silhouette faces the camera.
-            pellet.transform.rotation = viewCamera ? viewCamera.transform.rotation : Quaternion.identity;
+            var pelletTransform = pellet.transform;
+            pelletTransform.rotation = viewCamera ? viewCamera.transform.rotation : Quaternion.identity;
+            if (!arrow)
+            {
+                // A flying heavy arrow stretches along its flight axis. Keep the pellet's visible diameter fixed.
+                var rotation = pelletTransform.localRotation;
+                float width = transform.TransformVector(rotation * Vector3.right).magnitude;
+                float height = transform.TransformVector(rotation * Vector3.up).magnitude;
+                pelletTransform.localScale = new Vector3(1f / Mathf.Max(width, 0.001f),
+                    1f / Mathf.Max(height, 0.001f), 1f);
+            }
         }
 
         private void FixedUpdate()
         {
-            if (inFlight && Time.time >= expiresAt && arrow.projectiling.active)
+            if (arrow && Time.time >= expiresAt && arrow.projectiling.active)
                 arrow.ReturnToPool();
         }
 
         private void OnDisable()
         {
             ReleaseTarget();
-            inFlight = false;
             arrow = null;
             RestoreAppearance();
         }

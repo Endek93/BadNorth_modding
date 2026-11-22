@@ -90,7 +90,7 @@ namespace BadNorth.Musketeers
         }
 
         [HarmonyPatch(typeof(Archery), nameof(Archery.Setup))]
-        private static class HideArrowWhileAiming
+        private static class HideProjectileWhileAiming
         {
             private static readonly AccessTools.FieldRef<Archery, Shootable> HeldShot =
                 AccessTools.FieldRefAccess<Archery, Shootable>("shootable");
@@ -100,13 +100,15 @@ namespace BadNorth.Musketeers
                 MusketeerAppearance.Attach(__instance, ___bowAimer);
                 __instance.shooting.OnActivate += () =>
                 {
-                    if (MusketeersPlugin.IsMusketeer(__instance.agent) && HeldShot(__instance) is Arrow arrow && arrow)
-                        MusketeerRound.For(arrow).HideArrow();
+                    var projectile = HeldShot(__instance);
+                    if (projectile && (projectile is Arrow || projectile is TankArcherArrow)
+                        && MusketeersPlugin.IsMusketeer(__instance.agent))
+                        MusketeerRound.For(projectile).HideProjectile();
                 };
                 __instance.shooting.OnDeactivate += () =>
                 {
-                    if (HeldShot(__instance) is Arrow arrow && arrow)
-                        arrow.GetComponent<MusketeerRound>()?.RestoreAppearance();
+                    var projectile = HeldShot(__instance);
+                    if (projectile) projectile.GetComponent<MusketeerRound>()?.RestoreAppearance();
                 };
             }
         }
@@ -246,6 +248,28 @@ namespace BadNorth.Musketeers
                 }
                 else
                     __instance.GetComponent<MusketeerRound>()?.RestoreAppearance();
+            }
+        }
+
+        [HarmonyPatch(typeof(TankArcherArrow), nameof(TankArcherArrow.Shoot))]
+        private static class ReskinHeavyArrow
+        {
+            private static void Postfix(TankArcherArrow __instance, Agent shooter)
+            {
+                if (MusketeersPlugin.IsMusketeer(shooter))
+                    MusketeerRound.For(__instance).ShowPellet(__instance.spriteRenderer);
+                else
+                    __instance.GetComponent<MusketeerRound>()?.RestoreAppearance();
+            }
+        }
+
+        [HarmonyPatch(typeof(TankArcherArrow), nameof(TankArcherArrow.StampTo))]
+        private static class SkipEmbeddedHeavyArrow
+        {
+            private static bool Prefix(TankArcherArrow __instance)
+            {
+                var round = __instance.GetComponent<MusketeerRound>();
+                return !round || !round.HasPellet;
             }
         }
 
